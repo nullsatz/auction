@@ -79,13 +79,19 @@
                          (interleave
                           items
                           (repeat (count items) 0)))
-           wins []]
-      (if (empty? bidders) wins
+           wins []
+           history []]
+      (if (empty? bidders) {:match  wins :history history}
           (let [bids (place-bids weights prices bidders items)
                 new-wins (advance-wins wins bids items)
                 new-bidders (decide-bidders weights new-wins)
                 new-prices (update-prices prices bids new-wins)]
-            (recur new-bidders new-prices new-wins))))))
+            (recur new-bidders new-prices new-wins
+                   (conj history
+                         {:bids bids
+                          :wins new-wins
+                          :bidders new-bidders
+                          :prices new-prices})))))))
 
 (defn -main
   "run a random auction"
@@ -95,4 +101,6 @@
     (println "weights")
     (pretty/pprint w)
     (println "a matching")
-    (pretty/pprint a)))
+    (pretty/pprint (:match a))
+    (println "auction history")
+    (pretty/pprint (:history a))))
